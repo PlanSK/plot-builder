@@ -1,5 +1,6 @@
 {
     "incoming_data_file_path": "incoming_data/name.csv",
+    "separator": ";",
     "x_col_number": 0,
     "y_col_number": 7,
     "name_filter_criteria": "Criteria",
@@ -10,5 +11,6 @@
     "start_time": "08:00:00",
     "end_time": "19:00:00",
     "graph_color": "blue",
-    "transparent_png": true
+    "transparent_png": true,
+    "output_dir_name": "output_data"
 }
