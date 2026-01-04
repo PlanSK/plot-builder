@@ -170,3 +170,4 @@ mediafiles/
 PL_*.sh
 incoming_data/
 output_data/
+settings.json
