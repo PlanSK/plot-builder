@@ -9,8 +9,13 @@ SETTINGS_FILE_NAME = "settings.json"
 DEFAULT_START_TIME = "09:00:00"
 DEFAULT_END_TIME = "18:00:00"
 
-with open(SETTINGS_FILE_NAME) as config_file:
-    settings_dict = json.load(config_file)
+
+try:
+    with open(SETTINGS_FILE_NAME) as config_file:
+        settings_dict = json.load(config_file)
+except FileNotFoundError:
+    logger.error("Settings file is not found. Please edit settings.json.")
+    raise
 
 
 @dataclass

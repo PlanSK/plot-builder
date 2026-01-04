@@ -1,0 +1,16 @@
+{
+    "incoming_data_file_path": "incoming_data/20251225_Si_Cn_Br.csv",
+    "separator": ",",
+    "x_col_number": 0,
+    "y_col_number": 7,
+    "name_filter_criteria": "SiZ5",
+    "name_filter_col_num": 1,
+    "enamble_name_filter": true,
+    "rows_limit_counter": 0,
+    "time_filter_enable": true,
+    "start_time": "09:00:00",
+    "end_time": "18:00:00",
+    "graph_color": "blue",
+    "transparent_png": true,
+    "output_dir_name": "output_data"
+}
