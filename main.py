@@ -1,35 +1,19 @@
 import os.path
 from datetime import datetime
 
+import dateutil.parser
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 
-from config import TimeCondition, logger, name_filter, settings, time_filter
+from config import logger, name_filter, settings, time_filter
 
+logger.add("error.log", level="ERROR", rotation="10 MB")
 
 def read_large_file(file_path: str):
     with open(file_path, "r") as file:
         for line in file:
             yield line.strip()
-
-
-def checking_time_filter_condition(
-    current_time_value: datetime,
-    limit_time_value: str,
-    condition: TimeCondition = TimeCondition.START_TIME,
-) -> bool:
-    if condition == TimeCondition.START_TIME:
-        if current_time_value < datetime.strptime(
-            limit_time_value, "%H:%M:%S"
-        ):
-            return True
-    elif condition == TimeCondition.END_TIME:
-        if current_time_value > datetime.strptime(
-            limit_time_value, "%H:%M:%S"
-        ):
-            return True
-    return False
 
 
 def get_coordinates_from_csv(
@@ -50,27 +34,30 @@ def get_coordinates_from_csv(
                 and incoming_data[name_filter.name_filter_col_num]
                 != name_filter.name_filter_criteria
             ):
+                logger.debug("Skip incorrect row in file. Can't split that.")
+                continue
+            if counter == 0:
+                counter += 1
+                logger.debug("Skip first line in csv file.")
                 continue
             try:
                 y_coord = float("".join(str.split(incoming_data[y])))
-                x_coord = datetime.strptime(f"{incoming_data[x]}", "%H:%M:%S")
+                x_coord = dateutil.parser.parse(incoming_data[x])
             except ValueError:
+                logger.warning("Value conversion error, please check format.")
                 continue
-            if time_filter.filter_enable and checking_time_filter_condition(
-                x_coord, time_filter.start_time_value, TimeCondition.START_TIME
-            ):
+            if time_filter.filter_enable and dateutil.parser.parse(
+                time_filter.start_time_value
+            ) < x_coord > dateutil.parser.parse(time_filter.end_time_value):
                 continue
-            if time_filter.filter_enable and checking_time_filter_condition(
-                x_coord, time_filter.end_time_value, TimeCondition.END_TIME
-            ):
-                continue
-            if limit_rows:
-                counter += 1
+
+            counter += 1
             coordinates_list.append([x_coord, y_coord])
 
     if name_filter.filter_enable:
         logger.debug(
-            "Name filter is enabled. Submitting coordinates with name filter applied."
+            f"Name filter is enabled. Submitting coordinates"
+            f"with name filter applied."
         )
     return coordinates_list
 
@@ -83,7 +70,7 @@ def minimal_dot_drawing(x_coord_list: list, y_coord_list: list) -> None:
         x_coord_list[min_y_index],
         min_y_value,
         color="cyan",
-        label=f"Min: {min_y_value}/{time_of_min}",
+        label=f"Min: {min_y_value} / {time_of_min}",
     )
     plt.legend()
 
@@ -96,7 +83,7 @@ def maximal_dot_drawing(x_coord_list: list, y_coord_list: list) -> None:
         x_coord_list[max_y_index],
         max_y_value,
         color="orange",
-        label=f"Max: {max_y_value}/{time_of_max}",
+        label=f"Max: {max_y_value} / {time_of_max}",
     )
     plt.legend()
 
@@ -106,9 +93,16 @@ def plot_drawing(
 ) -> None:
     time_formatter = mdates.DateFormatter("%H-%M-%S")
     graph_name = "Default named graph"
+
+    if not all([len(x_coord_list), len(y_coord_list)]):
+        logger.error("Array with incoming data is empty.")
+        raise ValueError("Array with incoming data is empty.")
+
     if name_filter.filter_enable:
         graph_name = name_filter.name_filter_criteria
+
     plt.rcParams.update({"font.size": 8})
+    plt.rcParams.update({"agg.path.chunksize": 10000})
 
     plt.plot(x_coord_list, y_coord_list, color=settings.graph_color)
     plt.gcf().set_size_inches(15, 5)
@@ -144,5 +138,7 @@ if __name__ == "__main__":
 
     with open(settings.incoming_data_file_path, "r") as file:
         title_line = file.readline().strip().split(settings.separator)
-
-    plot_drawing(x_coord_list, y_coord_list, title_line)
+    try:
+        plot_drawing(x_coord_list, y_coord_list, title_line)
+    except Exception:
+        logger.error("Value error when trying to draw a graph.")

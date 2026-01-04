@@ -31,11 +31,6 @@ class Config:
     output_dir_name: str
 
 
-class TimeCondition(Enum):
-    START_TIME = 0
-    END_TIME = 1
-
-
 @dataclass
 class NameFilter:
     name_filter_criteria: str
