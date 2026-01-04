@@ -1,7 +1,6 @@
 import json
 import os.path
 from dataclasses import dataclass
-from enum import Enum
 
 from loguru import logger
 
