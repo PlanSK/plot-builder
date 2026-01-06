@@ -50,7 +50,7 @@ def get_csv_data(
                 and incoming_data[name_filter.name_filter_col_num]
                 != name_filter.name_filter_criteria
             ):
-                logger.debug("Skip incorrect row in file. Can't split that.")
+                logger.debug("Skipped filtered row by name.")
                 continue
             try:
                 y_coord = float("".join(str.split(incoming_data[y])))
@@ -58,9 +58,12 @@ def get_csv_data(
             except ValueError:
                 logger.warning("Value conversion error, please check format.")
                 continue
-            if time_filter.filter_enable and dateutil.parser.parse(
-                time_filter.start_time_value
-            ) < x_coord > dateutil.parser.parse(time_filter.end_time_value):
+            if time_filter.filter_enable and not (
+                dateutil.parser.parse(time_filter.start_time_value)
+                < x_coord
+                < dateutil.parser.parse(time_filter.end_time_value)
+            ):
+                logger.debug("Time out of range (early or later).")
                 continue
 
             counter += 1
@@ -137,14 +140,16 @@ def plot_drawing(
 
 
 if __name__ == "__main__":
-    csv_data = get_csv_data(
-        settings.incoming_data_file_path,
-        settings.x_col_number,
-        settings.y_col_number,
-    )
-    x_coord_list, y_coord_list = zip(*csv_data.coordinates)
-
+    try:
+        csv_data = get_csv_data(
+            settings.incoming_data_file_path,
+            settings.x_col_number,
+            settings.y_col_number,
+        )
+        x_coord_list, y_coord_list = zip(*csv_data.coordinates)
+    except ValueError:
+        logger.error("Value error. Not enough data for unpacking.")
     try:
         plot_drawing(x_coord_list, y_coord_list, csv_data.title)
     except Exception:
-        logger.error("Value error when trying to draw a graph.")
+        logger.error("Internal error when trying to draw a graph.")
