@@ -29,16 +29,16 @@ def get_coordinates_from_csv(
         incoming_data = row.strip().split(settings.separator)
 
         if len(incoming_data) > 1:
+            if counter == 0:
+                counter += 1
+                logger.debug("Skip first line in csv file.")
+                continue
             if (
                 name_filter.filter_enable
                 and incoming_data[name_filter.name_filter_col_num]
                 != name_filter.name_filter_criteria
             ):
                 logger.debug("Skip incorrect row in file. Can't split that.")
-                continue
-            if counter == 0:
-                counter += 1
-                logger.debug("Skip first line in csv file.")
                 continue
             try:
                 y_coord = float("".join(str.split(incoming_data[y])))
@@ -56,7 +56,7 @@ def get_coordinates_from_csv(
 
     if name_filter.filter_enable:
         logger.debug(
-            f"Name filter is enabled. Submitting coordinates"
+            f"Name filter is enabled. Submitting coordinates "
             f"with name filter applied."
         )
     return coordinates_list
