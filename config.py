@@ -20,7 +20,6 @@ except FileNotFoundError:
 @dataclass
 class Config:
     incoming_data_file_path: str
-    separator: str
     x_col_number: int
     y_col_number: int
     name_filter_criteria: str
@@ -52,7 +51,6 @@ class TimeFilter:
 try:
     settings = Config(
         incoming_data_file_path=settings_dict["incoming_data_file_path"],
-        separator=settings_dict.get("separator", ","),
         x_col_number=settings_dict["x_col_number"],
         y_col_number=settings_dict["y_col_number"],
         name_filter_criteria=settings_dict.get("name_filter_criteria", ""),
