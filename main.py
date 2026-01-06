@@ -1,4 +1,5 @@
 import os.path
+from dataclasses import dataclass
 from datetime import datetime
 
 import dateutil.parser
@@ -8,7 +9,15 @@ import numpy as np
 
 from config import logger, name_filter, settings, time_filter
 
+
+@dataclass
+class CsvData:
+    title: list
+    coordinates: list
+
+
 logger.add("error.log", level="ERROR", rotation="10 MB")
+
 
 def read_large_file(file_path: str):
     with open(file_path, "r") as file:
@@ -16,29 +25,32 @@ def read_large_file(file_path: str):
             yield line.strip()
 
 
-def get_coordinates_from_csv(
+def get_csv_data(
     file: str, x: int, y: int, limit_rows: int = settings.rows_limit_counter
-) -> list:
+) -> CsvData:
     coordinates_list = []
     counter = 0
-
+    separator = ","
     for row in read_large_file(file):
         if limit_rows and counter > limit_rows:
             break
 
-        incoming_data = row.strip().split(settings.separator)
+        if row.count(";") > row.count(",") and counter == 0:
+            separator = ";"
+        incoming_data = row.strip().split(separator)
 
         if len(incoming_data) > 1:
+            if counter == 0:
+                counter += 1
+                title = incoming_data
+                logger.debug("Skip first line in csv file.")
+                continue
             if (
                 name_filter.filter_enable
                 and incoming_data[name_filter.name_filter_col_num]
                 != name_filter.name_filter_criteria
             ):
-                logger.debug("Skip incorrect row in file. Can't split that.")
-                continue
-            if counter == 0:
-                counter += 1
-                logger.debug("Skip first line in csv file.")
+                logger.debug("Skipped filtered row by name.")
                 continue
             try:
                 y_coord = float("".join(str.split(incoming_data[y])))
@@ -46,9 +58,12 @@ def get_coordinates_from_csv(
             except ValueError:
                 logger.warning("Value conversion error, please check format.")
                 continue
-            if time_filter.filter_enable and dateutil.parser.parse(
-                time_filter.start_time_value
-            ) < x_coord > dateutil.parser.parse(time_filter.end_time_value):
+            if time_filter.filter_enable and not (
+                dateutil.parser.parse(time_filter.start_time_value)
+                < x_coord
+                < dateutil.parser.parse(time_filter.end_time_value)
+            ):
+                logger.debug("Time out of range (early or later).")
                 continue
 
             counter += 1
@@ -56,10 +71,10 @@ def get_coordinates_from_csv(
 
     if name_filter.filter_enable:
         logger.debug(
-            f"Name filter is enabled. Submitting coordinates"
+            f"Name filter is enabled. Submitting coordinates "
             f"with name filter applied."
         )
-    return coordinates_list
+    return CsvData(title, coordinates_list)
 
 
 def minimal_dot_drawing(x_coord_list: list, y_coord_list: list) -> None:
@@ -125,20 +140,16 @@ def plot_drawing(
 
 
 if __name__ == "__main__":
-    x_coord_list = []
-    y_coord_list = []
-
-    for x_coord, y_coord in get_coordinates_from_csv(
-        settings.incoming_data_file_path,
-        settings.x_col_number,
-        settings.y_col_number,
-    ):
-        x_coord_list.append(x_coord)
-        y_coord_list.append(y_coord)
-
-    with open(settings.incoming_data_file_path, "r") as file:
-        title_line = file.readline().strip().split(settings.separator)
     try:
-        plot_drawing(x_coord_list, y_coord_list, title_line)
+        csv_data = get_csv_data(
+            settings.incoming_data_file_path,
+            settings.x_col_number,
+            settings.y_col_number,
+        )
+        x_coord_list, y_coord_list = zip(*csv_data.coordinates)
+    except ValueError:
+        logger.error("Value error. Not enough data for unpacking.")
+    try:
+        plot_drawing(x_coord_list, y_coord_list, csv_data.title)
     except Exception:
-        logger.error("Value error when trying to draw a graph.")
+        logger.error("Internal error when trying to draw a graph.")

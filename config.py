@@ -20,12 +20,11 @@ except FileNotFoundError:
 @dataclass
 class Config:
     incoming_data_file_path: str
-    separator: str
     x_col_number: int
     y_col_number: int
     name_filter_criteria: str
     name_filter_col_num: int
-    enamble_name_filter: bool
+    enable_name_filter: bool
     rows_limit_counter: int
     time_filter_enable: bool
     start_time: str
@@ -52,12 +51,11 @@ class TimeFilter:
 try:
     settings = Config(
         incoming_data_file_path=settings_dict["incoming_data_file_path"],
-        separator=settings_dict.get("separator", ","),
         x_col_number=settings_dict["x_col_number"],
         y_col_number=settings_dict["y_col_number"],
         name_filter_criteria=settings_dict.get("name_filter_criteria", ""),
         name_filter_col_num=settings_dict["name_filter_col_num"],
-        enamble_name_filter=settings_dict.get("enamble_name_filter", True),
+        enable_name_filter=settings_dict.get("enable_name_filter", True),
         rows_limit_counter=settings_dict.get("rows_limit_counter", 0),
         time_filter_enable=settings_dict.get("time_filter_enable", True),
         start_time=settings_dict.get("start_time", DEFAULT_START_TIME),
@@ -87,7 +85,7 @@ except Exception:
 name_filter = NameFilter(
     name_filter_criteria=settings.name_filter_criteria,
     name_filter_col_num=settings.name_filter_col_num,
-    filter_enable=settings.enamble_name_filter,
+    filter_enable=settings.enable_name_filter,
 )
 time_filter = TimeFilter(
     start_time_value=settings.start_time,

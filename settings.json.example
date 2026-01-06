@@ -1,11 +1,10 @@
 {
     "incoming_data_file_path": "incoming_data/name.csv",
-    "separator": ";",
     "x_col_number": 0,
     "y_col_number": 7,
     "name_filter_criteria": "Criteria",
     "name_filter_col_num": 1,
-    "enamble_name_filter": true,
+    "enable_name_filter": true,
     "rows_limit_counter": 0,
     "time_filter_enable": true,
     "start_time": "08:00:00",
