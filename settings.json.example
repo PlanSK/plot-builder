@@ -12,5 +12,7 @@
     "end_time": "19:00:00",
     "graph_color": "blue",
     "transparent_png": true,
-    "output_dir_name": "output_data"
+    "output_dir_name": "output_data",
+    "min_dot_color": "cyan",
+    "max_dot_color": "orange"
 }

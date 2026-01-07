@@ -7,6 +7,9 @@ from loguru import logger
 SETTINGS_FILE_NAME = "settings.json"
 DEFAULT_START_TIME = "09:00:00"
 DEFAULT_END_TIME = "18:00:00"
+DEFAULT_GRAPH_COLOR = "black"
+DEFAULT_MIN_DOT_COLOR = "cyan"
+DEFAULT_MAX_DOT_COLOR = "orange"
 
 logger.add("error.log", level="ERROR", rotation="10 MB")
 
@@ -33,6 +36,8 @@ class Config:
     graph_color: str
     transparent_png: bool
     output_dir_name: str
+    min_dot_color: str
+    max_dot_color: str
 
 
 @dataclass
@@ -63,9 +68,15 @@ try:
         time_filter_enable=settings_dict.get("time_filter_enable", True),
         start_time=settings_dict.get("start_time", DEFAULT_START_TIME),
         end_time=settings_dict.get("end_time", DEFAULT_END_TIME),
-        graph_color=settings_dict.get("graph_color", "black"),
+        graph_color=settings_dict.get("graph_color", DEFAULT_GRAPH_COLOR),
         transparent_png=settings_dict.get("transparent_png", False),
         output_dir_name=settings_dict.get("output_dir_name", "output_data"),
+        min_dot_color=settings_dict.get(
+            "min_dot_color", DEFAULT_MIN_DOT_COLOR
+        ),
+        max_dot_color=settings_dict.get(
+            "min_dot_color", DEFAULT_MAX_DOT_COLOR
+        ),
     )
 except KeyError:
     logger.error("Critical error. There is no important value.")
