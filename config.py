@@ -8,6 +8,7 @@ SETTINGS_FILE_NAME = "settings.json"
 DEFAULT_START_TIME = "09:00:00"
 DEFAULT_END_TIME = "18:00:00"
 
+logger.add("error.log", level="ERROR", rotation="10 MB")
 
 try:
     with open(SETTINGS_FILE_NAME) as config_file:
@@ -50,7 +51,9 @@ class TimeFilter:
 
 try:
     settings = Config(
-        incoming_data_file_path=settings_dict["incoming_data_file_path"],
+        incoming_data_file_path=os.path.join(
+            settings_dict["incoming_data_dir"], settings_dict["file_name"]
+        ),
         x_col_number=settings_dict["x_col_number"],
         y_col_number=settings_dict["y_col_number"],
         name_filter_criteria=settings_dict.get("name_filter_criteria", ""),
@@ -65,12 +68,15 @@ try:
         output_dir_name=settings_dict.get("output_dir_name", "output_data"),
     )
 except KeyError:
-    logger.error("Critical error. There is no critical value.")
+    logger.error("Critical error. There is no important value.")
     raise KeyError
 
 try:
     if not os.path.exists(settings.incoming_data_file_path):
-        logger.error("Incoming file does not exist.")
+        logger.error(
+            f"Incoming file '{settings.incoming_data_file_path}' "
+            f"does not exist."
+        )
         raise ValueError("Incoming file does not exist.")
 except ValueError:
     raise

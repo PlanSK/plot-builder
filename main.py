@@ -16,9 +16,6 @@ class CsvData:
     coordinates: list
 
 
-logger.add("error.log", level="ERROR", rotation="10 MB")
-
-
 def read_large_file(file_path: str):
     with open(file_path, "r") as file:
         for line in file:
