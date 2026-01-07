@@ -81,7 +81,7 @@ def minimal_dot_drawing(x_coord_list: list, y_coord_list: list) -> None:
     plt.scatter(
         x_coord_list[min_y_index],
         min_y_value,
-        color="cyan",
+        color=settings.min_dot_color,
         label=f"Min: {min_y_value} / {time_of_min}",
     )
     plt.legend()
@@ -94,7 +94,7 @@ def maximal_dot_drawing(x_coord_list: list, y_coord_list: list) -> None:
     plt.scatter(
         x_coord_list[max_y_index],
         max_y_value,
-        color="orange",
+        color=settings.max_dot_color,
         label=f"Max: {max_y_value} / {time_of_max}",
     )
     plt.legend()
