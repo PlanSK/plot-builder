@@ -1,5 +1,6 @@
 {
-    "incoming_data_file_path": "incoming_data/name.csv",
+    "incoming_data_dir": "incoming_data",
+    "file_name": "name.csv",
     "x_col_number": 0,
     "y_col_number": 7,
     "name_filter_criteria": "Criteria",
