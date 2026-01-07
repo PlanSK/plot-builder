@@ -75,7 +75,7 @@ try:
             "min_dot_color", DEFAULT_MIN_DOT_COLOR
         ),
         max_dot_color=settings_dict.get(
-            "min_dot_color", DEFAULT_MAX_DOT_COLOR
+            "max_dot_color", DEFAULT_MAX_DOT_COLOR
         ),
     )
 except KeyError:
